@@ -19,5 +19,23 @@ public class Enemy : MonoBehaviour
     {
         Vector3 lookDirection = (player.transform.position - gameObject.transform.position).normalized;
         enemyRb.AddForce(lookDirection * speed);
+
+        if (transform.position.y < -10f)
+        {
+            Destroy(gameObject);
+        }
+    }
+    private void OnCollisionEnter(Collision player)
+    {
+        Vector3 lookDirection = (player.transform.position - gameObject.transform.position).normalized;
+        if (player.gameObject.CompareTag("Player")) {
+
+            player.rigidbody.AddForce(lookDirection*2.5f,ForceMode.Impulse);
+        
+        }
+        if(player.gameObject.CompareTag("FirePower"))
+        {
+            enemyRb.AddForce(lookDirection * 100f, ForceMode.Impulse);
+        }
     }
 }

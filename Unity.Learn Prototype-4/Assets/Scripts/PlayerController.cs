@@ -8,13 +8,18 @@ public class PlayerController : MonoBehaviour
     private GameObject focalPoint;
     private Rigidbody playerRb;
     public bool isPowerUp;
-    private float powerUpStrength = 15f;
+    public bool isFire;
+    private float powerUpStrength = 25f;
     public GameObject powerUpIndicator;
+    public GameObject bulletPrefab;
+    private Rigidbody bulletRb;
+    public Vector3 firePointOffset;
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("FocalPoint");
+        bulletRb = GameObject.Find("Bullet").GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -23,6 +28,12 @@ public class PlayerController : MonoBehaviour
         float verticalMovement = Input.GetAxis("Vertical");
         playerRb.AddForce(focalPoint.transform.forward*speed*verticalMovement);
         powerUpIndicator.transform.position = transform.position + new Vector3(0,-0.5f,0);
+
+        if(isFire)
+        {
+            Instantiate(bulletPrefab,transform.position + firePointOffset,bulletPrefab.transform.rotation);
+            
+        }
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -33,6 +44,13 @@ public class PlayerController : MonoBehaviour
             Destroy(other.gameObject);
             StartCoroutine(PowerUpCounter());
         }
+        if(other.CompareTag("FirePower"))
+        {
+            isFire = true;
+            Destroy(other.gameObject);
+            StartCoroutine(FirePowerCounter());
+            //do something...
+        }
 
     }
     
@@ -41,6 +59,11 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(5);
         powerUpIndicator.SetActive(false);
         isPowerUp = false;
+    }
+    IEnumerator FirePowerCounter()
+    {
+        yield return new WaitForSeconds(8);
+        isFire = false;
     }
     private void OnCollisionEnter(Collision collision)
     {
