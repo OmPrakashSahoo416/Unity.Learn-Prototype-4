@@ -7,9 +7,11 @@ public class Enemy : MonoBehaviour
     public float speed = 2.5f;
     private GameObject player;
     private Rigidbody enemyRb;
+    public GameManager gameManagerScript;
     // Start is called before the first frame update
     void Start()
     {
+        gameManagerScript = GameObject.Find("GameManager").GetComponent<GameManager>();
         enemyRb = GetComponent<Rigidbody>();
         player = GameObject.Find("Player");
     }
@@ -22,6 +24,7 @@ public class Enemy : MonoBehaviour
 
         if (transform.position.y < -10f)
         {
+            gameManagerScript.score += 10;
             Destroy(gameObject);
         }
     }
@@ -33,9 +36,6 @@ public class Enemy : MonoBehaviour
             player.rigidbody.AddForce(lookDirection*2.5f,ForceMode.Impulse);
         
         }
-        if(player.gameObject.CompareTag("FirePower"))
-        {
-            enemyRb.AddForce(lookDirection * 100f, ForceMode.Impulse);
-        }
+       
     }
 }

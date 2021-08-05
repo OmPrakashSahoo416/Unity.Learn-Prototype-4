@@ -9,30 +9,38 @@ public class SpawnManager : MonoBehaviour
     public int enemyCount;
     public int waveNumber = 1;
     public GameObject powerUpPrefab;
-    public GameObject firePowerPrefab,focalPoint;
+    public GameObject focalPoint;
     private PlayerController playerControllerScript;
     private Enemy enemy;
-    public Rigidbody bulletRb;
+    public GameManager gameManagerScript;
+   
     // Start is called before the first frame update
     void Start()
     {
-        focalPoint = GameObject.Find("FocalPoint");
-        SpawnEnemyWave(waveNumber);
-        Instantiate(powerUpPrefab,GenerateSpawnPosition(),powerUpPrefab.transform.rotation);
+        gameManagerScript = GameObject.Find("GameManager").GetComponent<GameManager>();
+        if (gameManagerScript.isGameActive==true)
+        {
+            focalPoint = GameObject.Find("FocalPoint");
+            SpawnEnemyWave(waveNumber);
+            Instantiate(powerUpPrefab, GenerateSpawnPosition(), powerUpPrefab.transform.rotation);
+        }
+        
     }
 
     // Update is called once per frame
     void Update()
     {
         enemyCount = FindObjectsOfType<Enemy>().Length;
-
-        if (enemyCount == 0) {
-            waveNumber++;
-            SpawnEnemyWave(waveNumber);
-            Instantiate(powerUpPrefab, GenerateSpawnPosition(), powerUpPrefab.transform.rotation);
-            Instantiate(firePowerPrefab, GenerateSpawnPosition(), firePowerPrefab.transform.rotation);
-            bulletRb.AddForce(focalPoint.transform.forward*1000);
+        if (gameManagerScript.isGameActive == true)
+        {
+            if (enemyCount == 0)
+            {
+                waveNumber++;
+                SpawnEnemyWave(waveNumber);
+                Instantiate(powerUpPrefab, GenerateSpawnPosition(), powerUpPrefab.transform.rotation);
+            }
         }
+           
        
     }
     void SpawnEnemyWave(int enemyToSpawn)
@@ -41,6 +49,7 @@ public class SpawnManager : MonoBehaviour
         {
             Instantiate(enemyPrefab, GenerateSpawnPosition(), enemyPrefab.transform.rotation);
         }
+        gameManagerScript.score += 20;
     }
     private Vector3 GenerateSpawnPosition()
     {

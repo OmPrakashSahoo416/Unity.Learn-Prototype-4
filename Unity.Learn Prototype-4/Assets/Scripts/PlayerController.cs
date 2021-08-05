@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,18 +9,19 @@ public class PlayerController : MonoBehaviour
     private GameObject focalPoint;
     private Rigidbody playerRb;
     public bool isPowerUp;
-    public bool isFire;
     private float powerUpStrength = 25f;
     public GameObject powerUpIndicator;
-    public GameObject bulletPrefab;
-    private Rigidbody bulletRb;
-    public Vector3 firePointOffset;
+    public GameObject restartPanel;
+    public GameManager gameManagerScript;
+
+
     // Start is called before the first frame update
     void Start()
     {
+        gameManagerScript = GameObject.Find("GameManager").GetComponent<GameManager>();
         playerRb = GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("FocalPoint");
-        bulletRb = GameObject.Find("Bullet").GetComponent<Rigidbody>();
+      
     }
 
     // Update is called once per frame
@@ -29,42 +31,35 @@ public class PlayerController : MonoBehaviour
         playerRb.AddForce(focalPoint.transform.forward*speed*verticalMovement);
         powerUpIndicator.transform.position = transform.position + new Vector3(0,-0.5f,0);
 
-        if(isFire)
+        if (transform.position.y < -5f)
         {
-            Instantiate(bulletPrefab,transform.position + firePointOffset,bulletPrefab.transform.rotation);
-            
+            restartPanel.SetActive(true);
+            Time.timeScale = 0f;
+                   
         }
+        
+
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("PowerUp"))
+        if (other.CompareTag("PowerUp"))
         {
             isPowerUp = true;
             powerUpIndicator.SetActive(true);
+            gameManagerScript.score += 5;
             Destroy(other.gameObject);
             StartCoroutine(PowerUpCounter());
-        }
-        if(other.CompareTag("FirePower"))
-        {
-            isFire = true;
-            Destroy(other.gameObject);
-            StartCoroutine(FirePowerCounter());
-            //do something...
+
         }
 
+        IEnumerator PowerUpCounter()
+        {
+            yield return new WaitForSeconds(5);
+            powerUpIndicator.SetActive(false);
+            isPowerUp = false;
+        }
     }
-    
-    IEnumerator PowerUpCounter()
-    {
-        yield return new WaitForSeconds(5);
-        powerUpIndicator.SetActive(false);
-        isPowerUp = false;
-    }
-    IEnumerator FirePowerCounter()
-    {
-        yield return new WaitForSeconds(8);
-        isFire = false;
-    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if(collision.gameObject.CompareTag("Enemy") && isPowerUp)
@@ -74,4 +69,5 @@ public class PlayerController : MonoBehaviour
             enemyRigidBody.AddForce(powerUpDirection * powerUpStrength, ForceMode.Impulse);
         }
     }
+    
 }
